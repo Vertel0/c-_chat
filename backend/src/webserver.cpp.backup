@@ -11,7 +11,6 @@ void WebChatServer::run(int port) {
 }
 
 void WebChatServer::setupRoutes() {
-    // Serve static files
     CROW_ROUTE(app, "/")
     ([]() {
         return crow::mustache::load_text("../templates/index.html");
@@ -23,7 +22,6 @@ void WebChatServer::setupRoutes() {
         res.end();
     });
     
-    // API routes
     CROW_ROUTE(app, "/api/register").methods("POST"_method)
     ([this](const crow::request& req) {
         return registerUser(req);
@@ -60,7 +58,6 @@ void WebChatServer::setupRoutes() {
     });
 }
 
-// API Handlers implementation
 crow::response WebChatServer::registerUser(const crow::request& req) {
     try {
         auto json = crow::json::load(req.body);
@@ -240,7 +237,6 @@ crow::response WebChatServer::addUserToChat(const crow::request& req, int chat_i
     }
 }
 
-// Utility methods
 std::string WebChatServer::getSessionToken(const crow::request& req) const {
     auto auth_header = req.get_header_value("Authorization");
     if (auth_header.find("Bearer ") == 0) {
