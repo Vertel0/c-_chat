@@ -2,7 +2,8 @@
 title Web Chat Server v2.0 Builder
 echo ========================================
 echo    Web Chat Server v2.0 - Build Script
-echo    (With Search ^& Join functionality)
+echo ========================================
+echo    (With Search and Join functionality)
 echo ========================================
 echo.
 
@@ -86,7 +87,7 @@ echo Step 6: Compiling v2.0 server...
 echo This may take a minute...
 echo.
 
-echo Compiling Web Chat v2.0 with search ^& join functionality...
+echo Compiling Web Chat v2.0 with search and join functionality...
 g++ -std=c++17 -O2 -pthread ^
   -I"../Crow/include" ^
   -I"../asio/asio/include" ^
@@ -209,12 +210,6 @@ echo NEW FEATURES in v2.0:
 echo 1. Search chats by ID ✓
 echo 2. Join any public chat ✓
 echo 3. Multi-user participation ✓
-echo.
-echo STILL MISSING (for next version):
-echo - Session tokens
-echo - Public/private chats
-echo - User invitations
-echo - Chat privacy options
 echo.
 echo Next steps:
 echo 1. Use run_server_v2.bat to start the server
