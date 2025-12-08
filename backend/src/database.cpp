@@ -87,6 +87,7 @@ bool Database::createUser(const std::string& username, const std::string& passwo
     
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
+    
     return success;
 }
 
@@ -97,6 +98,7 @@ User* Database::getUserByUsername(const std::string& username) const {
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
         return nullptr;
     }
+    
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
     
     User* user = nullptr;
@@ -167,6 +169,7 @@ int Database::createChat(const std::string& chat_name, int creator_id) {
     
     // Add creator to chat members
     addUserToChat(creator_id, chat_id);
+    
     return chat_id;
 }
 
@@ -275,6 +278,7 @@ bool Database::addMessage(int chat_id, int sender_id, const std::string& content
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
     delete sender;
+    
     return success;
 }
 
@@ -350,10 +354,12 @@ bool Database::isUserInChat(int user_id, int chat_id) const {
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
         return false;
     }
+    
     sqlite3_bind_int(stmt, 1, user_id);
     sqlite3_bind_int(stmt, 2, chat_id);
     
     bool exists = (sqlite3_step(stmt) == SQLITE_ROW);
     sqlite3_finalize(stmt);
+    
     return exists;
 }
