@@ -46,7 +46,7 @@ bool Database::initialize() {
     "FOREIGN KEY (chat_id) REFERENCES chats(chat_id),"
     "FOREIGN KEY (user_id) REFERENCES users(user_id),"
     "FOREIGN KEY (invited_by) REFERENCES users(user_id)"
-    ");"  // ← ТОЛЬКО ОДНА ТОЧКА С ЗАПЯТОЙ!
+    ");"
     
     "CREATE TABLE IF NOT EXISTS chat_members ("
     "user_id INTEGER,"
@@ -126,7 +126,6 @@ User* Database::getUserByUsername(const std::string& username) const {
         const unsigned char* email_ptr = sqlite3_column_text(stmt, 3);
         const unsigned char* session_token_ptr = sqlite3_column_text(stmt, 4);
         
-        // Преобразуем в std::string
         std::string username_str = username_ptr ? reinterpret_cast<const char*>(username_ptr) : "";
         std::string password_hash_str = password_hash_ptr ? reinterpret_cast<const char*>(password_hash_ptr) : "";
         std::string email_str = email_ptr ? reinterpret_cast<const char*>(email_ptr) : "";
@@ -258,7 +257,6 @@ bool Database::isUserInWhitelist(int user_id, int chat_id) const {
     return exists;
 }
 
-// Обновите метод getChatById для загрузки whitelist
 Chat* Database::getChatById(int chat_id) const{
     const char* sql = "SELECT chat_id, chat_name, chat_type, created_by, is_public FROM chats WHERE chat_id = ?";
     sqlite3_stmt* stmt;
@@ -337,7 +335,6 @@ std::vector<Chat> Database::getUserChats(int user_id) const{
         const unsigned char* chat_type_ptr = sqlite3_column_text(stmt, 2);
         int created_by = sqlite3_column_int(stmt, 3);
         
-        // Преобразуем в std::string
         std::string chat_name_str = chat_name_ptr ? reinterpret_cast<const char*>(chat_name_ptr) : "";
         std::string chat_type_str = chat_type_ptr ? reinterpret_cast<const char*>(chat_type_ptr) : "group";
         
@@ -379,7 +376,6 @@ std::vector<Chat> Database::getAllChats() const {
         const unsigned char* chat_type_ptr = sqlite3_column_text(stmt, 2);
         int created_by = sqlite3_column_int(stmt, 3);
         
-        // Преобразуем в std::string
         std::string chat_name_str = chat_name_ptr ? reinterpret_cast<const char*>(chat_name_ptr) : "";
         std::string chat_type_str = chat_type_ptr ? reinterpret_cast<const char*>(chat_type_ptr) : "group";
         
@@ -472,8 +468,6 @@ std::vector<Message> Database::getChatMessages(int chat_id, int limit) const{
     return messages;
 }
 
-// Membership operations
-// Улучшенный метод addUserToChat в database.cpp:
 
 bool Database::addUserToChat(int user_id, int chat_id) {
     // Сначала проверяем существование пользователя и чата
@@ -565,7 +559,6 @@ User* Database::getUserBySession(const std::string& session_token) const {
         const unsigned char* email_ptr = sqlite3_column_text(stmt, 3);
         const unsigned char* session_token_ptr = sqlite3_column_text(stmt, 4);
         
-        // Преобразуем в std::string
         std::string username_str = username_ptr ? reinterpret_cast<const char*>(username_ptr) : "";
         std::string password_hash_str = password_hash_ptr ? reinterpret_cast<const char*>(password_hash_ptr) : "";
         std::string email_str = email_ptr ? reinterpret_cast<const char*>(email_ptr) : "";

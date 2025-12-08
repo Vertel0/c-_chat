@@ -25,7 +25,7 @@ public:
     bool updateUserSession(int user_id, const std::string& session_token);
     
     // Chat operations  
-    int createChat(const std::string& chat_name, int creator_id, const std::string& type = "group", bool is_public = true); // ← ИЗМЕНЕНО
+    int createChat(const std::string& chat_name, int creator_id, const std::string& type = "group", bool is_public = true);
     Chat* getChatById(int chat_id) const;
     std::vector<Chat> getUserChats(int user_id) const;
     std::vector<Chat> getAllChats() const;
