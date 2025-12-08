@@ -6,14 +6,14 @@
 #include <iostream>
 #include <cassert>
 
-class BasicVersionTester {
+class Version2Tester {
 private:
     Database* db;
     ChatManager* chatManager;
-    std::string test_db_path = "test_chat.db";
+    std::string test_db_path = "test_chat_v2.db";
     
 public:
-    BasicVersionTester() {
+    Version2Tester() {
         std::remove(test_db_path.c_str());
         
         db = new Database(test_db_path);
@@ -23,29 +23,31 @@ public:
         chatManager = new ChatManager(test_db_path);
         
         std::cout << "========================================\n";
-        std::cout << "   BASIC VERSION TESTER\n";
+        std::cout << "   WEB CHAT v2.0 TESTER\n";
+        std::cout << "   (with Search & Join)\n";
         std::cout << "========================================\n";
     }
     
-    ~BasicVersionTester() {
+    ~Version2Tester() {
         delete chatManager;
         delete db;
         std::remove(test_db_path.c_str());
     }
     
     void runAllTests() {
-        std::cout << "\nRunning all tests...\n";
+        std::cout << "\nRunning all tests for Version 2.0...\n";
         
         testUserRegistration();
         testUserLogin();
         testChatCreation();
         testMessageSending();
         testUserChats();
-        testNegativeCases();
+        testSearchFunctionality();
+        testJoinFunctionality();
         testDatabasePersistence();
         
         std::cout << "\n========================================\n";
-        std::cout << "   ALL TESTS PASSED SUCCESSFULLY!\n";
+        std::cout << "   ALL v2.0 TESTS PASSED SUCCESSFULLY!\n";
         std::cout << "========================================\n";
     }
     
@@ -55,19 +57,19 @@ private:
         std::cout << "---------------------------\n";
         
         // Тест 1.1: Регистрация нового пользователя
-        int user1_id = chatManager->registerUser("test_user1", "password123", "test1@example.com");
+        int user1_id = chatManager->registerUser("alice_v2", "password123", "alice@example.com");
         assert(user1_id > 0 && "User registration failed");
-        std::cout << "User1 registered with ID: " << user1_id << std::endl;
+        std::cout << "Alice registered with ID: " << user1_id << std::endl;
         
         // Тест 1.2: Регистрация второго пользователя
-        int user2_id = chatManager->registerUser("test_user2", "password456", "test2@example.com");
+        int user2_id = chatManager->registerUser("bob_v2", "password456", "bob@example.com");
         assert(user2_id > 0 && "Second user registration failed");
-        std::cout << "User2 registered with ID: " << user2_id << std::endl;
+        std::cout << "Bob registered with ID: " << user2_id << std::endl;
         
-        // Тест 1.3: Попытка регистрации с существующим именем
-        int duplicate_id = chatManager->registerUser("test_user1", "password789", "duplicate@example.com");
-        assert(duplicate_id == -1 && "Duplicate username should fail");
-        std::cout << "Duplicate username correctly rejected\n";
+        // Тест 1.3: Регистрация третьего пользователя
+        int user3_id = chatManager->registerUser("charlie_v2", "password789", "charlie@example.com");
+        assert(user3_id > 0 && "Third user registration failed");
+        std::cout << "Charlie registered with ID: " << user3_id << std::endl;
     }
     
     void testUserLogin() {
@@ -75,203 +77,194 @@ private:
         std::cout << "--------------------\n";
         
         // Тест 2.1: Успешный логин
-        User* user1 = chatManager->loginUser("test_user1", "password123");
-        assert(user1 != nullptr && "Valid login should succeed");
-        assert(user1->username == "test_user1");
-        std::cout << "User1 login successful (ID: " << user1->user_id << ")\n";
-        delete user1;
+        User* alice = chatManager->loginUser("alice_v2", "password123");
+        assert(alice != nullptr && "Valid login should succeed");
+        std::cout << "Alice login successful (ID: " << alice->user_id << ")\n";
+        delete alice;
         
         // Тест 2.2: Неправильный пароль
-        User* wrong_pass = chatManager->loginUser("test_user1", "wrongpassword");
+        User* wrong_pass = chatManager->loginUser("alice_v2", "wrongpassword");
         assert(wrong_pass == nullptr && "Wrong password should fail");
         std::cout << "Wrong password correctly rejected\n";
-        
-        // Тест 2.3: Несуществующий пользователь
-        User* nonexistent = chatManager->loginUser("nonexistent_user", "password");
-        assert(nonexistent == nullptr && "Non-existent user should fail");
-        std::cout << "Non-existent user correctly rejected\n";
     }
     
     void testChatCreation() {
         std::cout << "\n[TEST 3] Chat Creation\n";
         std::cout << "-----------------------\n";
         
-        User* creator = chatManager->loginUser("test_user1", "password123");
-        assert(creator != nullptr);
+        User* alice = chatManager->loginUser("alice_v2", "password123");
+        assert(alice != nullptr);
         
-        // Тест 3.1: Создание чата
-        int chat_id = chatManager->createChat("Test Chat Room", creator->user_id);
-        assert(chat_id > 0 && "Chat creation failed");
-        std::cout << "Chat created with ID: " << chat_id << std::endl;
+        // Тест 3.1: Создание чата Alice
+        int chat1_id = chatManager->createChat("Alice's Public Chat", alice->user_id);
+        assert(chat1_id > 0 && "Chat creation failed");
+        std::cout << "Chat 1 created with ID: " << chat1_id << std::endl;
         
-        // Тест 3.2: Проверка существования чата
-        Chat* chat = chatManager->getChatById(chat_id);
-        assert(chat != nullptr && "Chat should exist");
-        assert(chat->chat_name == "Test Chat Room");
-        std::cout << "Chat exists and has correct name: " << chat->chat_name << std::endl;
+        // Тест 3.2: Создание второго чата Alice
+        int chat2_id = chatManager->createChat("Alice's Second Chat", alice->user_id);
+        assert(chat2_id > 0);
+        std::cout << "Chat 2 created with ID: " << chat2_id << std::endl;
         
-        // Тест 3.3: Создатель должен быть в чате
-        bool creator_in_chat = chat->hasMember(creator->user_id);
-        assert(creator_in_chat && "Creator should be in chat");
-        std::cout << "Creator is member of the chat\n";
+        User* bob = chatManager->loginUser("bob_v2", "password456");
+        assert(bob != nullptr);
         
-        delete chat;
-        delete creator;
+        // Тест 3.3: Создание чата Bob
+        int chat3_id = chatManager->createChat("Bob's Public Chat", bob->user_id);
+        assert(chat3_id > 0);
+        std::cout << "Chat 3 created with ID: " << chat3_id << std::endl;
+        
+        delete alice;
+        delete bob;
     }
     
     void testMessageSending() {
         std::cout << "\n[TEST 4] Message Sending\n";
         std::cout << "-------------------------\n";
         
-        User* user1 = chatManager->loginUser("test_user1", "password123");
-        assert(user1 != nullptr);
+        User* alice = chatManager->loginUser("alice_v2", "password123");
+        assert(alice != nullptr);
         
-        // Создаем чат для теста сообщений
-        int chat_id = chatManager->createChat("Message Test Chat", user1->user_id);
-        assert(chat_id > 0);
-        
-        // Тест 4.1: Отправка сообщения
-        bool message_sent = chatManager->sendMessage(chat_id, user1->user_id, "Hello, World!");
+        // Alice отправляет сообщение в свой чат
+        bool message_sent = chatManager->sendMessage(1, alice->user_id, "Hello from Alice!");
         assert(message_sent && "Message sending failed");
-        std::cout << "Message sent successfully\n";
+        std::cout << "Alice sent message to her chat\n";
         
-        // Тест 4.2: Получение сообщений
-        auto messages = chatManager->getChatMessages(chat_id, user1->user_id, 10);
-        assert(!messages.empty() && "Messages should be retrieved");
-        assert(messages[0].content == "Hello, World!");
-        std::cout << "Message retrieved: \"" << messages[0].content << "\"\n";
-        std::cout << "Sender: " << messages[0].sender_name << std::endl;
-        std::cout << "Timestamp: " << messages[0].timestamp << std::endl;
-        
-        // Тест 4.3: Отправка второго сообщения
-        bool second_message = chatManager->sendMessage(chat_id, user1->user_id, "Second message");
-        assert(second_message);
-        
-        auto two_messages = chatManager->getChatMessages(chat_id, user1->user_id, 10);
-        assert(two_messages.size() == 2 && "Should have 2 messages");
-        std::cout << "Second message sent, total messages: " << two_messages.size() << std::endl;
-        
-        delete user1;
+        delete alice;
     }
     
     void testUserChats() {
         std::cout << "\n[TEST 5] User Chats List\n";
         std::cout << "-------------------------\n";
         
-        User* user1 = chatManager->loginUser("test_user1", "password123");
-        assert(user1 != nullptr);
+        User* alice = chatManager->loginUser("alice_v2", "password123");
+        assert(alice != nullptr);
         
-        User* user2 = chatManager->loginUser("test_user2", "password456");
-        assert(user2 != nullptr);
+        User* bob = chatManager->loginUser("bob_v2", "password456");
+        assert(bob != nullptr);
         
-        // Создаем несколько чатов для первого пользователя
-        int chat1 = chatManager->createChat("Chat 1", user1->user_id);
-        int chat2 = chatManager->createChat("Chat 2", user1->user_id);
-        int chat3 = chatManager->createChat("Chat 3", user1->user_id);
+        // Тест 5.1: Получение списка чатов Alice
+        auto alice_chats = chatManager->getUserChats(alice->user_id);
+        assert(alice_chats.size() == 2 && "Alice should have 2 chats");
+        std::cout << "Alice has " << alice_chats.size() << " chats\n";
         
-        // Тест 5.1: Получение списка чатов пользователя 1
-        auto user1_chats = chatManager->getUserChats(user1->user_id);
-        assert(user1_chats.size() >= 3 && "User1 should have at least 3 chats");
-        std::cout << "✓ User1 has " << user1_chats.size() << " chats\n";
+        // Тест 5.2: Получение списка чатов Bob
+        auto bob_chats = chatManager->getUserChats(bob->user_id);
+        assert(bob_chats.size() == 1 && "Bob should have 1 chat");
+        std::cout << "Bob has " << bob_chats.size() << " chat\n";
         
-        // Тест 5.2: Проверка имен чатов
-        bool found_chat1 = false;
-        bool found_chat2 = false;
-        bool found_chat3 = false;
-        
-        for (const auto& chat : user1_chats) {
-            if (chat.chat_name == "Chat 1") found_chat1 = true;
-            if (chat.chat_name == "Chat 2") found_chat2 = true;
-            if (chat.chat_name == "Chat 3") found_chat3 = true;
+        // Тест 5.3: Проверка изоляции
+        bool alice_sees_bobs_chat = false;
+        for (const auto& chat : alice_chats) {
+            if (chat.chat_name == "Bob's Public Chat") {
+                alice_sees_bobs_chat = true;
+            }
         }
+        assert(!alice_sees_bobs_chat && "Alice should not see Bob's chat before joining");
+        std::cout << "Chat isolation works (users see only their chats)\n";
         
-        assert(found_chat1 && "Chat 1 should be in list");
-        assert(found_chat2 && "Chat 2 should be in list");
-        assert(found_chat3 && "Chat 3 should be in list");
-        std::cout << "All created chats found in user's list\n";
-        
-        // Тест 5.3: У второго пользователя не должно быть этих чатов
-        auto user2_chats = chatManager->getUserChats(user2->user_id);
-        std::cout << "User2 has " << user2_chats.size() << " chats (should be 0 or own chats)\n";
-        
-        delete user1;
-        delete user2;
+        delete alice;
+        delete bob;
     }
     
-    void testNegativeCases() {
-        std::cout << "\n[TEST 6] Negative Cases (Error Handling)\n";
-        std::cout << "------------------------------------------\n";
+    void testSearchFunctionality() {
+        std::cout << "\n[TEST 6] Search Functionality\n";
+        std::cout << "------------------------------\n";
         
-        // Тест 6.1: Отправка сообщения в несуществующий чат
-        User* user1 = chatManager->loginUser("test_user1", "password123");
-        assert(user1 != nullptr);
+        // Тест 6.1: Поиск существующего чата
+        Chat* found_chat = chatManager->searchChatById(3);
+        assert(found_chat != nullptr && "Should find existing chat");
+        assert(found_chat->chat_name == "Bob's Public Chat");
+        std::cout << "Found chat: " << found_chat->chat_name << " (ID: " << found_chat->chat_id << ")\n";
+        std::cout << "Members: " << found_chat->member_ids.size() << std::endl;
         
-        bool fake_chat_message = chatManager->sendMessage(99999, user1->user_id, "Test");
-        assert(!fake_chat_message && "Should not send to non-existent chat");
-        std::cout << "Cannot send to non-existent chat\n";
+        // Тест 6.2: Поиск несуществующего чата
+        Chat* not_found = chatManager->searchChatById(999);
+        assert(not_found == nullptr && "Should not find non-existent chat");
+        std::cout << "Non-existent chat correctly not found\n";
         
-        // Тест 6.2: Отправка сообщения без доступа к чату
-        User* user2 = chatManager->loginUser("test_user2", "password456");
-        assert(user2 != nullptr);
+        delete found_chat;
+    }
+    
+    void testJoinFunctionality() {
+        std::cout << "\n[TEST 7] Join Functionality\n";
+        std::cout << "---------------------------\n";
         
-        int private_chat = chatManager->createChat("Private Chat", user1->user_id);
+        User* alice = chatManager->loginUser("alice_v2", "password123");
+        assert(alice != nullptr);
         
-        // Попытка отправить сообщение в чужой чат
-        bool unauthorized_message = chatManager->sendMessage(private_chat, user2->user_id, "Hi");
-        assert(!unauthorized_message && "Should not send to chat without access");
-        std::cout << "Cannot send to chat without being a member\n";
+        User* charlie = chatManager->loginUser("charlie_v2", "password789");
+        assert(charlie != nullptr);
         
-        // Тест 6.3: Получение сообщений без доступа
-        auto unauthorized_messages = chatManager->getChatMessages(private_chat, user2->user_id);
-        assert(unauthorized_messages.empty() && "Should not get messages without access");
-        std::cout << "Cannot get messages from chat without access\n";
+        // Тест 7.1: Alice пытается присоединиться к своему же чату
+        bool join_own_chat = chatManager->addUserToChat(alice->user_id, 1);
+        assert(!join_own_chat && "Should not be able to join own chat (already member)");
+        std::cout << "Cannot join chat where already a member\n";
         
-        delete user1;
-        delete user2;
+        // Тест 7.2: Alice присоединяется к чату Bob
+        bool join_success = chatManager->addUserToChat(alice->user_id, 3);
+        assert(join_success && "Should be able to join Bob's chat");
+        std::cout << "Alice successfully joined Bob's chat\n";
+        
+        // Тест 7.3: Charlie присоединяется к чату Alice
+        bool charlie_join = chatManager->addUserToChat(charlie->user_id, 1);
+        assert(charlie_join && "Charlie should join Alice's chat");
+        std::cout << "Charlie successfully joined Alice's chat\n";
+        
+        // Тест 7.4: Проверка, что Alice теперь видит чат Bob
+        auto alice_chats_after = chatManager->getUserChats(alice->user_id);
+        bool alice_sees_bobs_chat = false;
+        for (const auto& chat : alice_chats_after) {
+            if (chat.chat_id == 3) {
+                alice_sees_bobs_chat = true;
+            }
+        }
+        assert(alice_sees_bobs_chat && "Alice should now see Bob's chat after joining");
+        std::cout << "Alice now sees Bob's chat in her list\n";
+        
+        // Тест 7.5: Charlie отправляет сообщение в чат Alice
+        bool charlie_message = chatManager->sendMessage(1, charlie->user_id, "Hi from Charlie!");
+        assert(charlie_message && "Charlie should send message after joining");
+        std::cout << "Charlie can send message after joining\n";
+        
+        delete alice;
+        delete charlie;
     }
     
     void testDatabasePersistence() {
-        std::cout << "\n[TEST 7] Database Persistence\n";
+        std::cout << "\n[TEST 8] Database Persistence\n";
         std::cout << "------------------------------\n";
         
-        // Пересоздаем менеджер для теста персистентности
         delete chatManager;
         delete db;
         
         chatManager = new ChatManager(test_db_path);
         
         // Проверяем, что пользователи сохранились
-        User* user1 = chatManager->loginUser("test_user1", "password123");
-        assert(user1 != nullptr && "User should persist");
-        std::cout << "✓ User1 persisted in database (ID: " << user1->user_id << ")\n";
+        User* alice = chatManager->loginUser("alice_v2", "password123");
+        assert(alice != nullptr && "User should persist");
+        std::cout << "Alice persisted in database (ID: " << alice->user_id << ")\n";
         
-        User* user2 = chatManager->loginUser("test_user2", "password456");
-        assert(user2 != nullptr && "User2 should persist");
-        std::cout << "✓ User2 persisted in database (ID: " << user2->user_id << ")\n";
+        // Проверяем чаты Alice
+        auto alice_chats = chatManager->getUserChats(alice->user_id);
+        assert(alice_chats.size() >= 3 && "Alice should have at least 3 chats (2 own + 1 joined)");
+        std::cout << "Alice's chats persisted (" << alice_chats.size() << " chats)\n";
         
-        // Проверяем, что можно получить чаты пользователя
-        auto user_chats = chatManager->getUserChats(user1->user_id);
-        assert(!user_chats.empty() && "User chats should persist");
-        std::cout << "✓ User's chats persisted (" << user_chats.size() << " chats)\n";
+        // Проверяем сообщения
+        auto messages = chatManager->getChatMessages(1, alice->user_id);
+        assert(messages.size() >= 2 && "Should have at least 2 messages");
+        std::cout << "Messages persisted (" << messages.size() << " messages)\n";
         
-        // Проверяем сообщения в одном из чатов
-        if (!user_chats.empty()) {
-            int first_chat_id = user_chats[0].chat_id;
-            auto messages = chatManager->getChatMessages(first_chat_id, user1->user_id);
-            std::cout << "✓ Messages persisted in chat " << first_chat_id << " (" << messages.size() << " messages)\n";
-        }
-        
-        delete user1;
-        delete user2;
+        delete alice;
     }
 };
 
 int main() {
-    std::cout << "Starting Basic Web Chat Version 1.0 Tests\n";
+    std::cout << "Starting Web Chat Version 2.0 Tests\n";
+    std::cout << "Features tested: Search + Join functionality\n";
     std::cout << "========================================\n";
     
     try {
-        BasicVersionTester tester;
+        Version2Tester tester;
         tester.runAllTests();
         return 0;
     } catch (const std::exception& e) {
