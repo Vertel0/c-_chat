@@ -22,6 +22,8 @@ private:
     crow::response getChatMessages(const crow::request& req, int chat_id);
     crow::response sendMessage(const crow::request& req);
     crow::response createChat(const crow::request& req);
+    crow::response searchChat(const crow::request& req);
+    crow::response joinChat(const crow::request& req);
     
     // Utility
     bool validateRequest(const crow::request& req, int* user_id = nullptr);

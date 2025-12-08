@@ -8,7 +8,7 @@ WebChatServer::WebChatServer() {
 }
 
 void WebChatServer::run(int port) {
-    std::cout << "Web Chat Server running on http://localhost:" << port << std::endl;
+    std::cout << "Web Chat Server v2.0 (with search & join) running on http://localhost:" << port << std::endl;
     app.port(port).multithreaded().run();
 }
 
@@ -61,6 +61,16 @@ void WebChatServer::setupRoutes() {
     CROW_ROUTE(app, "/api/chats/create").methods("POST"_method)
     ([this](const crow::request& req) {
         return createChat(req);
+    });
+    
+    CROW_ROUTE(app, "/api/chats/search").methods("POST"_method)
+    ([this](const crow::request& req) {
+        return searchChat(req);
+    });
+
+    CROW_ROUTE(app, "/api/chats/join").methods("POST"_method)
+    ([this](const crow::request& req) {
+        return joinChat(req);
     });
 }
 
@@ -223,6 +233,78 @@ crow::response WebChatServer::createChat(const crow::request& req) {
         
     } catch (const std::exception& e) {
         return crow::response(500, "Server error");
+    }
+}
+
+crow::response WebChatServer::searchChat(const crow::request& req) {
+    try {
+        auto json = crow::json::load(req.body);
+        if (!json) return crow::response(400, "Invalid JSON");
+        
+        int chat_id = json["chat_id"].i();
+        
+        Chat* chat = chat_manager.getChatById(chat_id);
+        if (!chat) {
+            return crow::response(404, "Chat not found");
+        }
+        
+        crow::json::wvalue response;
+        response["chat_id"] = chat->chat_id;
+        response["chat_name"] = chat->chat_name;
+        response["member_count"] = chat->member_ids.size();
+        response["created_by"] = chat->created_by;
+        
+        delete chat;
+        return crow::response{response};
+        
+    } catch (const std::exception& e) {
+        return crow::response(500, "Server error");
+    }
+}
+
+crow::response WebChatServer::joinChat(const crow::request& req) {
+    int user_id = 0;
+    if (!validateRequest(req, &user_id)) {
+        return crow::response(401, "Invalid session");
+    }
+    
+    try {
+        auto json = crow::json::load(req.body);
+        if (!json) return crow::response(400, "Invalid JSON");
+        
+        int chat_id = json["chat_id"].i();
+        std::cout << "DEBUG joinChat: User " << user_id 
+                  << " attempting to join chat " << chat_id << std::endl;
+        
+        // Проверяем существование чата
+        Chat* chat = chat_manager.getChatById(chat_id);
+        if (!chat) {
+            return crow::response(404, "Chat not found");
+        }
+        
+        // Проверяем, не состоит ли пользователь уже в чате
+        if (chat->hasMember(user_id)) {
+            delete chat;
+            return crow::response(409, "User already in this chat");
+        }
+        
+        delete chat;
+        
+        // Добавляем пользователя в чат
+        bool success = chat_manager.addUserToChat(user_id, chat_id);
+        if (!success) {
+            return crow::response(500, "Failed to join chat");
+        }
+        
+        crow::json::wvalue response;
+        response["message"] = "Successfully joined chat";
+        response["chat_id"] = chat_id;
+        
+        return crow::response{response};
+        
+    } catch (const std::exception& e) {
+        std::cerr << "EXCEPTION in joinChat: " << e.what() << std::endl;
+        return crow::response(500, std::string("Server error: ") + e.what());
     }
 }
 
