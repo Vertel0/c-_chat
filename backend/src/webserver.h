@@ -15,16 +15,18 @@ public:
 private:
     void setupRoutes();
     
-    // API handlers
     crow::response registerUser(const crow::request& req);
     crow::response loginUser(const crow::request& req);
     crow::response getUserChats(const crow::request& req);
     crow::response getChatMessages(const crow::request& req, int chat_id);
     crow::response sendMessage(const crow::request& req);
     crow::response createChat(const crow::request& req);
+    crow::response createChatWithPrivacy(const crow::request& req);
+    crow::response addUserToChat(const crow::request& req, int chat_id);
     crow::response searchChat(const crow::request& req);
     crow::response joinChat(const crow::request& req);
+    crow::response inviteUserToChat(const crow::request& req, int chat_id);
     
-    // Utility
-    bool validateRequest(const crow::request& req, int* user_id = nullptr);
+    std::string getSessionToken(const crow::request& req) const;
+    bool validateRequest(const crow::request& req, User** user = nullptr);
 };
