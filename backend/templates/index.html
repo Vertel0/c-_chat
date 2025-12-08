@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Chat Application v2.0</title>
+    <title>Web Chat Application</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
         <!-- Login Screen -->
         <div id="login-screen" class="screen">
             <div class="login-container">
-                <h2>Web Chat Login v2.0</h2>
+                <h2>Web Chat Login</h2>
                 <div id="login-form">
                     <input type="text" id="username" placeholder="Username" required>
                     <input type="password" id="password" placeholder="Password" required>
@@ -37,7 +37,7 @@
                 <!-- Sidebar -->
                 <div class="sidebar">
                     <div class="sidebar-header">
-                        <h3>Web Chat v2.0</h3>
+                        <h3>Web Chat</h3>
                         <div class="user-info">
                             <div>
                                 <span id="current-user"></span>
@@ -53,11 +53,11 @@
                             <h4>My Chats</h4>
                             <button onclick="showCreateChat()">+ Create</button>
                         </div>
-                        <!-- Search Container (БЕЗ кнопки Clear) -->
+                        <!-- Search Container -->
                         <div class="search-container">
                             <input type="text" id="chat-search" placeholder="Search chat by ID...">
                             <button onclick="searchChat()">Search</button>
-                            <!-- Кнопки Clear НЕТ - как в финальной версии -->
+                            <button onclick="clearSearch()" id="clear-search-btn" style="display: none;">Clear</button>
                         </div>
                         <div id="chat-list" class="chat-list"></div>
                     </div>
@@ -67,13 +67,16 @@
                 <div class="chat-area">
                     <div class="chat-header">
                         <h3 id="current-chat-name">Select a Chat</h3>
+                        <div id="chat-actions" style="display: none;">
+                            <button onclick="inviteUser()">Invite</button>
+                        </div>
                     </div>
                     
                     <div id="messages-container" class="messages-container">
                         <div id="messages" class="messages">
                             <div id="no-chat-selected" style="text-align: center; padding: 2rem; color: #999;">
-                                <h3>Welcome to Web Chat v2.0</h3>
-                                <p>Select a chat from the sidebar, create a new one, or search for chats to join!</p>
+                                <h3>Welcome to Web Chat</h3>
+                                <p>Select a chat from the sidebar or create a new one to start messaging</p>
                             </div>
                         </div>
                     </div>
@@ -91,9 +94,31 @@
             <div class="modal-content">
                 <h3>Create New Chat</h3>
                 <input type="text" id="new-chat-name" placeholder="Chat name">
+                <div class="privacy-option">
+                    <label>
+                        <input type="radio" name="chat-privacy" value="public" checked> Public Chat
+                        <small>(Anyone can join)</small>
+                    </label>
+                    <label>
+                        <input type="radio" name="chat-privacy" value="private"> Private Chat
+                        <small>(Invite only)</small>
+                    </label>
+                </div>
                 <div class="modal-actions">
                     <button onclick="createChat()">Create</button>
                     <button onclick="hideCreateChat()">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="invite-user-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Invite User to Private Chat</h3>
+                <p>Enter user ID to invite:</p>
+                <input type="text" id="invite-user-id" placeholder="User ID">
+                <div class="modal-actions">
+                    <button onclick="sendInvite()">Invite</button>
+                    <button onclick="hideInviteUser()">Cancel</button>
                 </div>
             </div>
         </div>
