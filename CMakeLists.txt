@@ -1,5 +1,5 @@
 ﻿cmake_minimum_required(VERSION 3.15)
-project(BasicWebChatApp)
+project(WebChatAppV2)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -50,9 +50,9 @@ set(MAIN_SOURCES
     backend/src/database.cpp
 )
 
-# Тесты
-set(TEST_SOURCES
-    backend/tests/basic_version_tester.cpp
+# Тесты для версии 2.0
+set(TEST_V2_SOURCES
+    backend/tests/tester_v2.cpp
     backend/src/chat_manager.cpp
     backend/src/user.cpp
     backend/src/chat.cpp
@@ -61,44 +61,44 @@ set(TEST_SOURCES
 )
 
 # Основной исполняемый файл
-add_executable(basic_web_chat ${MAIN_SOURCES})
+add_executable(web_chat_v2 ${MAIN_SOURCES})
 
-# Тестовый исполняемый файл
-add_executable(test_basic_chat ${TEST_SOURCES})
+# Тестовый исполняемый файл для версии 2.0
+add_executable(test_chat_v2 ${TEST_V2_SOURCES})
 
 # Линкуем библиотеки для Windows
 if(WIN32)
-    target_link_libraries(basic_web_chat 
+    target_link_libraries(web_chat_v2 
         ws2_32 
         wsock32 
         crypt32 
         ${SQLITE3_LIBRARIES}
     )
     
-    target_link_libraries(test_basic_chat 
+    target_link_libraries(test_chat_v2 
         ws2_32 
         wsock32 
         crypt32 
         ${SQLITE3_LIBRARIES}
     )
     
-    target_compile_definitions(basic_web_chat PRIVATE
+    target_compile_definitions(web_chat_v2 PRIVATE
         _WIN32_WINNT=0x0601
         CROW_STATIC_DEFINE
         ASIO_STANDALONE
     )
     
-    target_compile_definitions(test_basic_chat PRIVATE
+    target_compile_definitions(test_chat_v2 PRIVATE
         _WIN32_WINNT=0x0601
     )
 else()
     # Для Linux/Mac
-    target_link_libraries(basic_web_chat 
+    target_link_libraries(web_chat_v2 
         pthread 
         ${SQLITE3_LIBRARIES}
     )
     
-    target_link_libraries(test_basic_chat 
+    target_link_libraries(test_chat_v2 
         pthread 
         ${SQLITE3_LIBRARIES}
     )
