@@ -1,9 +1,7 @@
 @echo off
-title Web Chat Server v2.0 Builder
+title Web Chat Server Builder
 echo ========================================
-echo    Web Chat Server v2.0 - Build Script
-echo ========================================
-echo    (With Search and Join functionality)
+echo    Web Chat Server - Build Script
 echo ========================================
 echo.
 
@@ -74,8 +72,26 @@ if not exist "..\Crow\include\crow.h" (
     exit /b 1
 )
 
-if not exist "..\backend\src\webserver.cpp" (
-    echo ERROR: webserver.cpp not found!
+if not exist "..\Crow\include\crow\common.h" (
+    echo ERROR: ..\Crow\include\crow\common.h not found!
+    pause
+    exit /b 1
+)
+
+if not exist "..\asio\asio\include\asio.hpp" (
+    echo ERROR: ..\asio\asio\include\asio.hpp not found!
+    pause
+    exit /b 1
+)
+
+if not exist "..\backend\src\database.h" (
+    echo ERROR: ..\backend\src\database.h not found!
+    pause
+    exit /b 1
+)
+
+if not exist "..\backend\src\database.cpp" (
+    echo ERROR: ..\backend\src\database.cpp not found!
     pause
     exit /b 1
 )
@@ -83,11 +99,12 @@ if not exist "..\backend\src\webserver.cpp" (
 echo [X] All source files found
 echo.
 
-echo Step 6: Compiling v2.0 server...
+echo Step 6: Compiling server...
 echo This may take a minute...
 echo.
 
-echo Compiling Web Chat v2.0 with search and join functionality...
+:: Попытка 1: с -lsqlite3
+echo Attempt 1: Standard linking...
 g++ -std=c++17 -O2 -pthread ^
   -I"../Crow/include" ^
   -I"../asio/asio/include" ^
@@ -100,12 +117,11 @@ g++ -std=c++17 -O2 -pthread ^
   "../backend/src/message.cpp" ^
   "../backend/src/database.cpp" ^
   -lws2_32 -lwsock32 -lbcrypt -lsqlite3 ^
-  -o web_chat_v2.exe
+  -o web_chat_server.exe
 
 if %errorlevel% neq 0 (
     echo.
-    echo Standard linking failed. Trying with direct library...
-    echo.
+    echo Attempt 1 failed. Trying Attempt 2: Direct library...
     
     if exist "%SQLITE_LIB%" (
         g++ -std=c++17 -O2 -pthread ^
@@ -120,7 +136,7 @@ if %errorlevel% neq 0 (
           "../backend/src/message.cpp" ^
           "../backend/src/database.cpp" ^
           -lws2_32 -lwsock32 -lbcrypt "%SQLITE_LIB%" ^
-          -o web_chat_v2.exe
+          -o web_chat_server.exe
     ) else if exist "libsqlite3.a" (
         echo Using downloaded SQLite library...
         g++ -std=c++17 -O2 -pthread ^
@@ -135,7 +151,7 @@ if %errorlevel% neq 0 (
           "../backend/src/message.cpp" ^
           "../backend/src/database.cpp" ^
           -lws2_32 -lwsock32 -lbcrypt "libsqlite3.a" ^
-          -o web_chat_v2.exe
+          -o web_chat_server.exe
     ) else (
         echo No SQLite library found, trying without...
         g++ -std=c++17 -O2 -pthread ^
@@ -150,7 +166,7 @@ if %errorlevel% neq 0 (
           "../backend/src/message.cpp" ^
           "../backend/src/database.cpp" ^
           -lws2_32 -lwsock32 -lbcrypt ^
-          -o web_chat_v2.exe
+          -o web_chat_server.exe
     )
 )
 
@@ -167,7 +183,7 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo [X] v2.0 Server compiled successfully!
+echo [X] Compilation successful!
 echo.
 
 echo Step 7: Setting up files...
@@ -203,21 +219,15 @@ if not exist sqlite3.dll (
 
 echo.
 echo ========================================
-echo    BUILD v2.0 COMPLETED SUCCESSFULLY! 🎉
+echo    BUILD COMPLETED SUCCESSFULLY! 🎉
 echo ========================================
 echo.
-echo NEW FEATURES in v2.0:
-echo 1. Search chats by ID ✓
-echo 2. Join any public chat ✓
-echo 3. Multi-user participation ✓
-echo.
 echo Next steps:
-echo 1. Use run_server_v2.bat to start the server
+echo 1. Use run_server.bat to start the server
 echo 2. Open http://localhost:8080 in your browser
-echo 3. Test search and join functionality
 echo.
 echo Files created:
-echo - web_chat_v2.exe (main server)
+echo - web_chat_server.exe (main server)
 echo - chat.db (database file)
 echo - templates/ (HTML templates)
 echo - static/ (CSS/JS files)

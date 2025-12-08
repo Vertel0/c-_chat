@@ -1,14 +1,12 @@
 @echo off
-title Web Chat Server v2.0
+title Web Chat Server
 echo ========================================
-echo    Web Chat Server v2.0 - Runner
-echo ========================================
-echo    (With Search and Join functionality)
+echo    Web Chat Server - Runner
 echo ========================================
 echo.
 
 echo Checking if server is built...
-if not exist build\web_chat_v2.exe (
+if not exist build\web_chat_server.exe (
     echo ERROR: Server executable not found!
     echo.
     echo Please run build.bat first to compile the server
@@ -23,9 +21,7 @@ echo.
 echo Checking database status...
 if exist build\chat.db (
     echo [X] Database file exists (%CD%\build\chat.db)
-    for %%F in (build\chat.db) do (
-        set DBSIZE=%%~zF
-    )
+    for %%F in (build\chat.db) do set DBSIZE=%%~zF
     if %DBSIZE% gtr 0 (
         echo [X] Database contains data (%DBSIZE% bytes)
     ) else (
@@ -46,20 +42,7 @@ if not exist build\sqlite3.dll (
 
 echo.
 
-echo ========================================
-echo    VERSION 2.0 FEATURES:
-echo ========================================
-echo 1. User registration and login (simple auth)
-echo 2. Create chats (name only)
-echo 3. Send and receive messages
-echo 4. View your own chats
-echo 5. SEARCH chats by ID ✓ (NEW!)
-echo 6. JOIN any public chat ✓ (NEW!)
-echo.
-echo ========================================
-echo.
-
-echo Starting Web Chat Server v2.0...
+echo Starting Web Chat Server...
 echo.
 echo Server URL: http://localhost:8080
 echo Database: %CD%\build\chat.db
@@ -69,7 +52,7 @@ echo ========================================
 echo.
 
 cd build
-web_chat_v2.exe
+web_chat_server.exe
 
 :: Если сервер завершился, возвращаемся в корневую папку
 cd ..
