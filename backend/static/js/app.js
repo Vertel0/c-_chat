@@ -5,11 +5,6 @@ class WebChat {
         this.currentChat = null;
         this.chats = [];
         this.pollingInterval = null;
-        
-        // Try auto-login if user exists
-        if (this.currentUserId && this.currentUser) {
-            this.showChatScreen();
-        }
     }
 
     // API calls
@@ -220,15 +215,115 @@ class WebChat {
         }
     }
 
-    // UI Rendering
-    renderChats() {
+    // Search functionality (как в финальной версии - с крестиком, без кнопки Clear)
+    async searchChat() {
+        const searchInput = document.getElementById('chat-search');
+        const chatId = parseInt(searchInput.value.trim());
+        
+        if (!chatId || isNaN(chatId)) {
+            this.showMessage('Please enter a valid chat ID', 'error');
+            return;
+        }
+        
+        try {
+            const data = await this.apiCall('/api/chats/search', {
+                method: 'POST',
+                body: JSON.stringify({ chat_id: chatId })
+            });
+            
+            this.showSearchResult(data);
+            
+        } catch (error) {
+            this.showMessage('Chat not found: ' + error.message, 'error');
+            this.closeSearchResult();
+        }
+    }
+
+    showSearchResult(chatData) {
         const chatList = document.getElementById('chat-list');
         if (!chatList) return;
         
-        chatList.innerHTML = '';
+        // Удаляем предыдущий результат поиска
+        this.removeSearchResult();
         
-        if (this.chats.length === 0) {
-            chatList.innerHTML = '<div class="no-chats" style="color: #999; padding: 10px;">No chats yet. Create one!</div>';
+        const resultElement = document.createElement('div');
+        resultElement.className = 'search-result';
+        resultElement.id = 'search-result-item';
+        
+        resultElement.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <h4>${this.escapeHtml(chatData.chat_name)}</h4>
+                    <p>ID: ${chatData.chat_id} • Members: ${chatData.member_count}</p>
+                </div>
+                <button onclick="chatApp.closeSearchResult()" style="background: transparent; border: none; color: #999; cursor: pointer; font-size: 18px;">×</button>
+            </div>
+            <button onclick="chatApp.joinChat(${chatData.chat_id})" style="margin-top: 8px;">Join Chat</button>
+        `;
+        
+        // Вставляем в начало списка чатов
+        chatList.insertBefore(resultElement, chatList.firstChild);
+    }
+    
+    async joinChat(chatId) {
+        try {
+            const data = await this.apiCall('/api/chats/join', {
+                method: 'POST',
+                body: JSON.stringify({ chat_id: chatId })
+            });
+            
+            this.showMessage('Successfully joined chat!', 'success');
+            
+            // Закрываем результат поиска
+            this.closeSearchResult();
+            
+            // Перезагружаем список чатов
+            await this.loadChats();
+            
+        } catch (error) {
+            this.showMessage(error.message, 'error');
+        }
+    }
+
+    // Метод для закрытия результата поиска (очищает поле поиска и удаляет результат)
+    closeSearchResult() {
+        this.removeSearchResult();
+        
+        // Очищаем поле поиска
+        const searchInput = document.getElementById('chat-search');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+    }
+    
+    // Метод для удаления результата поиска
+    removeSearchResult() {
+        const existingResult = document.getElementById('search-result-item');
+        if (existingResult) {
+            existingResult.remove();
+        }
+    }
+
+    // UI Rendering
+    renderChats() {
+        const chatList = document.getElementById('chat-list');
+        if (!chatList) {
+            console.error('chat-list element not found!');
+            return;
+        }
+        
+        // Удаляем только обычные чаты, оставляя результат поиска
+        const itemsToRemove = [];
+        for (const child of chatList.children) {
+            if (!child.id || child.id !== 'search-result-item') {
+                itemsToRemove.push(child);
+            }
+        }
+        
+        itemsToRemove.forEach(item => item.remove());
+        
+        if (this.chats.length === 0 && !document.getElementById('search-result-item')) {
+            chatList.innerHTML = '<div class="no-chats" style="color: #999; padding: 10px;">No chats yet. Create one or search for existing chats!</div>';
             return;
         }
         
@@ -332,10 +427,6 @@ class WebChat {
         }, 5000);
     }
 
-    showSearchDisabledMessage() {
-        this.showMessage('Search functionality is disabled in this version', 'error');
-    }
-
     escapeHtml(unsafe) {
         return unsafe
             .replace(/&/g, "&amp;")
@@ -431,9 +522,10 @@ function hideCreateChat() {
     chatApp.hideCreateChat();
 }
 
-function showSearchDisabledMessage() {
-    chatApp.showSearchDisabledMessage();
+function searchChat() {
+    chatApp.searchChat();
 }
+
 
 // Enter key handlers
 document.addEventListener('DOMContentLoaded', function() {
@@ -451,5 +543,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('new-chat-name').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') createChat();
+    });
+    
+    document.getElementById('chat-search').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchChat();
     });
 });

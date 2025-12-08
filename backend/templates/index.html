@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Chat Application</title>
+    <title>Web Chat Application v2.0</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
         <!-- Login Screen -->
         <div id="login-screen" class="screen">
             <div class="login-container">
-                <h2>Web Chat Login</h2>
+                <h2>Web Chat Login v2.0</h2>
                 <div id="login-form">
                     <input type="text" id="username" placeholder="Username" required>
                     <input type="password" id="password" placeholder="Password" required>
@@ -37,7 +37,7 @@
                 <!-- Sidebar -->
                 <div class="sidebar">
                     <div class="sidebar-header">
-                        <h3>Web Chat</h3>
+                        <h3>Web Chat v2.0</h3>
                         <div class="user-info">
                             <div>
                                 <span id="current-user"></span>
@@ -53,10 +53,11 @@
                             <h4>My Chats</h4>
                             <button onclick="showCreateChat()">+ Create</button>
                         </div>
-                        <!-- Search Container (inactive in this version) -->
+                        <!-- Search Container (БЕЗ кнопки Clear) -->
                         <div class="search-container">
-                            <input type="text" id="chat-search" placeholder="Search disabled in this version" disabled>
-                            <button onclick="showSearchDisabledMessage()" disabled>Search</button>
+                            <input type="text" id="chat-search" placeholder="Search chat by ID...">
+                            <button onclick="searchChat()">Search</button>
+                            <!-- Кнопки Clear НЕТ - как в финальной версии -->
                         </div>
                         <div id="chat-list" class="chat-list"></div>
                     </div>
@@ -71,8 +72,8 @@
                     <div id="messages-container" class="messages-container">
                         <div id="messages" class="messages">
                             <div id="no-chat-selected" style="text-align: center; padding: 2rem; color: #999;">
-                                <h3>Welcome to Web Chat</h3>
-                                <p>Select a chat from the sidebar or create a new one to start messaging</p>
+                                <h3>Welcome to Web Chat v2.0</h3>
+                                <p>Select a chat from the sidebar, create a new one, or search for chats to join!</p>
                             </div>
                         </div>
                     </div>
