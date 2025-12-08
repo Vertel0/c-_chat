@@ -42,6 +42,46 @@ int ChatManager::createChat(const std::string& chat_name, int creator_id) {
     return database.createChat(chat_name, creator_id);
 }
 
+bool ChatManager::addUserToChat(int user_id, int chat_id) {
+    std::cout << "DEBUG ChatManager::addUserToChat: user " << user_id 
+              << " to chat " << chat_id << std::endl;
+    
+    // Проверяем существование пользователя
+    User* user = database.getUserById(user_id);
+    if (!user) {
+        std::cout << "ERROR: User " << user_id << " not found!" << std::endl;
+        return false;
+    }
+    delete user;
+    
+    Chat* chat = getChatById(chat_id);
+    if (!chat) {
+        std::cout << "ERROR: Chat " << chat_id << " not found!" << std::endl;
+        return false;
+    }
+    
+    std::cout << "DEBUG: Chat found. Name: " << chat->chat_name 
+              << ", Members: " << chat->member_ids.size() << std::endl;
+    
+    // Проверяем, не состоит ли уже
+    if (chat->hasMember(user_id)) {
+        std::cout << "ERROR: User " << user_id << " already in chat " << chat_id << std::endl;
+        delete chat;
+        return false;
+    }
+    
+    bool success = database.addUserToChat(user_id, chat_id);
+    
+    if (success) {
+        std::cout << "SUCCESS: Added user " << user_id << " to chat " << chat_id << std::endl;
+    } else {
+        std::cout << "ERROR: Database failed to add user " << user_id << " to chat " << chat_id << std::endl;
+    }
+    
+    delete chat;
+    return success;
+}
+
 Chat* ChatManager::getChatById(int chat_id) {
     return database.getChatById(chat_id);
 }
@@ -78,4 +118,9 @@ std::vector<Message> ChatManager::getChatMessages(int chat_id, int user_id, int 
     }
     
     return database.getChatMessages(chat_id, count);
+}
+
+// Search functionality
+Chat* ChatManager::searchChatById(int chat_id) {
+    return database.getChatById(chat_id);
 }

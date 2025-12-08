@@ -18,10 +18,14 @@ public:
     
     // Chat management
     int createChat(const std::string& chat_name, int creator_id);
+    bool addUserToChat(int user_id, int chat_id);
     Chat* getChatById(int chat_id);
     std::vector<Chat> getUserChats(int user_id);
     
     // Message management
     bool sendMessage(int chat_id, int sender_id, const std::string& content);
     std::vector<Message> getChatMessages(int chat_id, int user_id, int count = 50);
+    
+    // Search functionality
+    Chat* searchChatById(int chat_id);
 };
