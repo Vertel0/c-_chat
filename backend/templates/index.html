@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Chat Application</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen">
+            <div class="login-container">
+                <h2>Web Chat Login</h2>
+                <div id="login-form">
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button onclick="login()">Login</button>
+                    <button onclick="showRegister()">Register</button>
+                </div>
+                
+                <div id="register-form" style="display: none;">
+                    <input type="text" id="reg-username" placeholder="Username" required>
+                    <input type="email" id="reg-email" placeholder="Email (optional)">
+                    <input type="password" id="reg-password" placeholder="Password" required>
+                    <button onclick="register()">Register</button>
+                    <button onclick="showLogin()">Back to Login</button>
+                </div>
+                
+                <div id="auth-message" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Main Chat Screen -->
+        <div id="chat-screen" class="screen" style="display: none;">
+            <div class="chat-layout">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <h3>Web Chat</h3>
+                        <div class="user-info">
+                            <div>
+                                <span id="current-user"></span>
+                                <br>
+                                <small>ID: <span id="current-user-id"></span></small>
+                            </div>
+                            <button onclick="logout()">Logout</button>
+                        </div>
+                    </div>
+                    
+                    <div class="chats-section">
+                        <div class="section-header">
+                            <h4>My Chats</h4>
+                            <button onclick="showCreateChat()">+ Create</button>
+                        </div>
+                        <!-- Search Container (inactive in this version) -->
+                        <div class="search-container">
+                            <input type="text" id="chat-search" placeholder="Search disabled in this version" disabled>
+                            <button onclick="showSearchDisabledMessage()" disabled>Search</button>
+                        </div>
+                        <div id="chat-list" class="chat-list"></div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="chat-area">
+                    <div class="chat-header">
+                        <h3 id="current-chat-name">Select a Chat</h3>
+                    </div>
+                    
+                    <div id="messages-container" class="messages-container">
+                        <div id="messages" class="messages">
+                            <div id="no-chat-selected" style="text-align: center; padding: 2rem; color: #999;">
+                                <h3>Welcome to Web Chat</h3>
+                                <p>Select a chat from the sidebar or create a new one to start messaging</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="message-input-container">
+                        <input type="text" id="message-input" placeholder="Type a message..." disabled>
+                        <button id="send-button" onclick="sendMessage()" disabled>Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="create-chat-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Create New Chat</h3>
+                <input type="text" id="new-chat-name" placeholder="Chat name">
+                <div class="modal-actions">
+                    <button onclick="createChat()">Create</button>
+                    <button onclick="hideCreateChat()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
